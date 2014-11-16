@@ -1,0 +1,4 @@
+ScreenshotPlugin
+================
+
+Plugin for TCPChat
