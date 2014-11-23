@@ -1,5 +1,7 @@
-﻿using Engine.Model.Server;
+﻿using Engine.Helpers;
+using Engine.Model.Server;
 using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 
@@ -17,7 +19,11 @@ namespace ScreenshotPlugin
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-      ScreenClientPlugin.Model.Peer.SendMessage(UserNameTextBox.Text, ClientMakeScreenCommand.CommandId, null);
+      var fileName = Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) + ".bmp";
+      ScreenClientPlugin.AddFile(fileName);
+
+      var messageContent = Serializer.Serialize(new ClientMakeScreenCommand.MessageContent { FileName = fileName });
+      ScreenClientPlugin.Model.Peer.SendMessage(UserNameTextBox.Text, ClientMakeScreenCommand.CommandId, messageContent);
     }
   }
 }

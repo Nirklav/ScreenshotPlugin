@@ -1,4 +1,5 @@
-﻿using Engine.Plugins.Client;
+﻿using Engine.Model.Client;
+using Engine.Plugins.Client;
 using System.Collections.Generic;
 
 namespace ScreenshotPlugin
@@ -6,11 +7,16 @@ namespace ScreenshotPlugin
   public class ScreenClientPlugin : ClientPlugin
   {
     private List<ClientPluginCommand> commands;
+    private ScreenshotNotifierContext notifier;
 
-    public override List<ClientPluginCommand> Commands { get { return commands; } }
+    private static List<string> downloadingFiles;
+
+    #region ClientPlugin
 
     protected override void Initialize()
     {
+      downloadingFiles = new List<string>();
+      notifier = new ScreenshotNotifierContext();
       commands = new List<ClientPluginCommand>
       {
         new ClientMakeScreenCommand(),
@@ -32,6 +38,36 @@ namespace ScreenshotPlugin
     public override string MenuCaption
     {
       get { return "Сделать скриншот"; }
+    }
+
+    public override ClientNotifierContext NotifierContext
+    {
+      get { return notifier; }
+    }
+
+    public override List<ClientPluginCommand> Commands
+    { 
+      get { return commands; }
+    }
+
+    #endregion
+
+    public static void AddFile(string fileName)
+    {
+      lock (downloadingFiles)
+        downloadingFiles.Add(fileName);
+    }
+
+    public static void RemoveFile(string fileName)
+    {
+      lock (downloadingFiles)
+        downloadingFiles.Remove(fileName);
+    }
+
+    public static bool NeedDownload(string fileName)
+    {
+      lock (downloadingFiles)
+        return downloadingFiles.Contains(fileName);
     }
   }
 }

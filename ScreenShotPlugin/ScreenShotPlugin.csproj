@@ -60,6 +60,7 @@
     <Compile Include="ScreenDialog.xaml.cs">
       <DependentUpon>ScreenDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ScreenshotNotifierContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="ScreenDialog.xaml">

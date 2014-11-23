@@ -19,24 +19,31 @@ namespace ScreenshotPlugin
       if (args.PeerConnectionId == null)
         return;
 
-      string screenDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screens");
+      var receivedContent = Serializer.Deserialize<MessageContent>(args.Message);
+
+      var screenDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screens");
       if (!Directory.Exists(screenDirectory))
         Directory.CreateDirectory(screenDirectory);
 
-      string fileName = Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) + ".bmp";
-      string fullPath = Path.Combine(screenDirectory, fileName);
+      var fullPath = Path.Combine(screenDirectory, receivedContent.FileName);
      
-      using (Bitmap bmpScreenCapture = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height))
-      using (Graphics graphic = Graphics.FromImage(bmpScreenCapture))
+      using (var bmpScreenCapture = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height))
+      using (var graphic = Graphics.FromImage(bmpScreenCapture))
       {
         graphic.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, bmpScreenCapture.Size, CopyPixelOperation.SourceCopy);
         bmpScreenCapture.Save(fullPath);
       }
 
       ScreenClientPlugin.Model.API.AddFileToRoom(ServerModel.MainRoomName, fullPath);
+      ScreenClientPlugin.Model.Peer.SendMessage(args.PeerConnectionId, ClientScreenDoneCommand.CommandId, null);
+    }
 
-      var messageContent = Serializer.Serialize(new ClientScreenDoneCommand.MessageContent { FileName = fullPath });
-      ScreenClientPlugin.Model.Peer.SendMessage(args.PeerConnectionId, ClientScreenDoneCommand.CommandId, messageContent);
+    [Serializable]
+    public class MessageContent
+    {
+      private string fileName;
+
+      public string FileName { get { return fileName; } set { fileName = value; } }
     }
   }
 }
