@@ -17,7 +17,7 @@ namespace ScreenshotPlugin
       if (args.PeerConnectionId == null)
         return;
 
-      ScreenClientPlugin.Model.API.SendMessage(string.Format("Выполнен снимок у пользователя {0}.", args.PeerConnectionId), ServerModel.MainRoomName);
+      ScreenClientPlugin.Model.API.SendMessage(null, string.Format("Выполнен снимок у пользователя {0}.", args.PeerConnectionId), ServerModel.MainRoomName);
     }
   }
 }
