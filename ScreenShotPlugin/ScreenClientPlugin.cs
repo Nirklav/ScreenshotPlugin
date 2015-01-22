@@ -24,6 +24,8 @@ namespace ScreenshotPlugin
     {
       downloadingFiles = new List<string>();
       notifier = NotifierGenerator.MakeContext<IClientNotifierContext>();
+      notifier.ReceiveMessage += OnReceiveMessage;
+
       commands = new List<ClientPluginCommand>
       {
         new ClientMakeScreenCommand(),
@@ -59,7 +61,7 @@ namespace ScreenshotPlugin
 
     #endregion
 
-    private void OnReceiveMessage(ReceiveMessageEventArgs args)
+    private void OnReceiveMessage(object sender, ReceiveMessageEventArgs args)
     {
       if (args.Type != MessageType.File)
         return;
