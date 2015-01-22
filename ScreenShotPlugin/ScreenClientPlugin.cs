@@ -1,13 +1,20 @@
-﻿using Engine.Model.Client;
+﻿using Engine;
+using Engine.Model.Client;
+using Engine.Model.Common;
+using Engine.Model.Entities;
+using Engine.Model.Server;
+using Engine.Plugins;
 using Engine.Plugins.Client;
+using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ScreenshotPlugin
 {
   public class ScreenClientPlugin : ClientPlugin
   {
     private List<ClientPluginCommand> commands;
-    private ScreenshotNotifierContext notifier;
+    private IClientNotifierContext notifier;
 
     private static List<string> downloadingFiles;
 
@@ -16,7 +23,7 @@ namespace ScreenshotPlugin
     protected override void Initialize()
     {
       downloadingFiles = new List<string>();
-      notifier = new ScreenshotNotifierContext();
+      notifier = NotifierGenerator.MakeContext<IClientNotifierContext>();
       commands = new List<ClientPluginCommand>
       {
         new ClientMakeScreenCommand(),
@@ -40,9 +47,9 @@ namespace ScreenshotPlugin
       get { return "Сделать скриншот"; }
     }
 
-    public override ClientNotifierContext NotifierContext
+    public override CrossDomainObject NotifierContext
     {
-      get { return notifier; }
+      get { return (CrossDomainObject) notifier; }
     }
 
     public override List<ClientPluginCommand> Commands
@@ -51,6 +58,28 @@ namespace ScreenshotPlugin
     }
 
     #endregion
+
+    private void OnReceiveMessage(ReceiveMessageEventArgs args)
+    {
+      if (args.Type != MessageType.File)
+        return;
+
+      var file = args.State as FileDescription;
+      if (file == null)
+        return;
+
+      var downaladDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "downloads");
+      if (!Directory.Exists(downaladDirectory))
+        Directory.CreateDirectory(downaladDirectory);
+
+      var path = Path.Combine(downaladDirectory, file.Name);
+
+      if (ScreenClientPlugin.NeedDownload(file.Name))
+      {
+        ScreenClientPlugin.RemoveFile(file.Name);
+        ScreenClientPlugin.Model.API.DownloadFile(path, ServerModel.MainRoomName, file);
+      }
+    }
 
     public static void AddFile(string fileName)
     {
