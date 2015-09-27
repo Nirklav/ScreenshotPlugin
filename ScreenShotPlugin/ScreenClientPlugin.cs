@@ -3,7 +3,6 @@ using Engine.Model.Client;
 using Engine.Model.Common;
 using Engine.Model.Entities;
 using Engine.Model.Server;
-using Engine.Plugins;
 using Engine.Plugins.Client;
 using System;
 using System.Collections.Generic;
@@ -13,18 +12,17 @@ namespace ScreenshotPlugin
 {
   public class ScreenClientPlugin : ClientPlugin
   {
-    private List<ClientPluginCommand> commands;
-    private IClientNotifierContext notifier;
-
     private static List<string> downloadingFiles;
+    private List<ClientPluginCommand> commands;
+    private IClientNotifierContext notifierContext;
 
     #region ClientPlugin
 
     protected override void Initialize()
     {
       downloadingFiles = new List<string>();
-      notifier = NotifierGenerator.MakeContext<IClientNotifierContext>();
-      notifier.ReceiveMessage += OnReceiveMessage;
+      notifierContext = NotifierGenerator.MakeContext<IClientNotifierContext>();
+      notifierContext.ReceiveMessage += OnReceiveMessage;
 
       commands = new List<ClientPluginCommand>
       {
@@ -49,14 +47,14 @@ namespace ScreenshotPlugin
       get { return "Сделать скриншот"; }
     }
 
-    public override CrossDomainObject NotifierContext
-    {
-      get { return (CrossDomainObject) notifier; }
-    }
-
-    public override List<ClientPluginCommand> Commands
+    public override IEnumerable<ClientPluginCommand> Commands
     { 
       get { return commands; }
+    }
+
+    public override object NotifierContext
+    {
+      get { return notifierContext; }
     }
 
     #endregion
@@ -76,10 +74,10 @@ namespace ScreenshotPlugin
 
       var path = Path.Combine(downaladDirectory, file.Name);
 
-      if (ScreenClientPlugin.NeedDownload(file.Name))
+      if (NeedDownload(file.Name))
       {
-        ScreenClientPlugin.RemoveFile(file.Name);
-        ScreenClientPlugin.Model.API.DownloadFile(path, ServerModel.MainRoomName, file);
+        RemoveFile(file.Name);
+        Model.API.DownloadFile(path, ServerModel.MainRoomName, file);
       }
     }
 

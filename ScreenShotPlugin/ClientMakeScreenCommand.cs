@@ -1,4 +1,4 @@
-﻿using Engine;
+﻿using Engine.API;
 using Engine.Helpers;
 using Engine.Model.Server;
 using Engine.Plugins.Client;
@@ -12,7 +12,7 @@ namespace ScreenshotPlugin
   public class ClientMakeScreenCommand : ClientPluginCommand
   {
     public static ushort CommandId { get { return 50000; } }
-    public override ushort Id { get { return ClientMakeScreenCommand.CommandId; } }
+    public override ushort Id { get { return CommandId; } }
 
     public override void Run(ClientCommandArgs args)
     {

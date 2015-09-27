@@ -1,16 +1,13 @@
-﻿using Engine;
-using Engine.Helpers;
+﻿using Engine.API;
 using Engine.Model.Server;
 using Engine.Plugins.Client;
-using System;
-using System.IO;
 
 namespace ScreenshotPlugin
 {
   public class ClientScreenDoneCommand : ClientPluginCommand
   {
     public static ushort CommandId { get { return 50001; } }
-    public override ushort Id { get { return ClientScreenDoneCommand.CommandId; } }
+    public override ushort Id { get { return CommandId; } }
 
     public override void Run(ClientCommandArgs args)
     {
