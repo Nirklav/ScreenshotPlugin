@@ -77,7 +77,7 @@ namespace ScreenshotPlugin
       if (NeedDownload(file.Name))
       {
         RemoveFile(file.Name);
-        Model.API.DownloadFile(path, ServerModel.MainRoomName, file);
+        Model.Api.DownloadFile(path, ServerModel.MainRoomName, file);
       }
     }
 

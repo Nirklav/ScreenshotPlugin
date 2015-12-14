@@ -6,15 +6,22 @@ namespace ScreenshotPlugin
 {
   public class ClientScreenDoneCommand : ClientPluginCommand
   {
-    public static ushort CommandId { get { return 50001; } }
-    public override ushort Id { get { return CommandId; } }
+    public const long CommandId = 50001;
 
-    public override void Run(ClientCommandArgs args)
+    protected override bool IsPeerCommand
     {
-      if (args.PeerConnectionId == null)
-        return;
+      get { return true; }
+    }
 
-      ScreenClientPlugin.Model.API.SendMessage(null, string.Format("Выполнен снимок у пользователя {0}.", args.PeerConnectionId), ServerModel.MainRoomName);
+    public override long Id
+    {
+      get { return CommandId; }
+    }
+
+    protected override void OnRun(ClientCommandArgs args)
+    {
+      var message = string.Format("Выполнен снимок у пользователя {0}.", args.PeerConnectionId);
+      ScreenClientPlugin.Model.Api.SendMessage(null, message, ServerModel.MainRoomName);
     }
   }
 }
