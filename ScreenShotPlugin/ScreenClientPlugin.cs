@@ -1,4 +1,5 @@
 ﻿using Engine;
+using Engine.Exceptions;
 using Engine.Model.Client;
 using Engine.Model.Common;
 using Engine.Model.Entities;
@@ -64,20 +65,23 @@ namespace ScreenshotPlugin
       if (args.Type != MessageType.File)
         return;
 
-      var file = args.State as FileDescription;
-      if (file == null)
-        return;
-
-      var downaladDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "downloads");
-      if (!Directory.Exists(downaladDirectory))
-        Directory.CreateDirectory(downaladDirectory);
-
-      var path = Path.Combine(downaladDirectory, file.Name);
-
-      if (NeedDownload(file.Name))
+      using (var client = Model.Get())
       {
-        RemoveFile(file.Name);
-        Model.Api.DownloadFile(path, ServerModel.MainRoomName, file);
+        Room room;
+        if (!client.Rooms.TryGetValue(args.RoomName, out room))
+          throw new ModelException(ErrorCode.RoomNotFound);
+
+        var file = room.Files.Find(f => f.Id == args.FileId);
+        var downaladDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "downloads");
+        if (!Directory.Exists(downaladDirectory))
+          Directory.CreateDirectory(downaladDirectory);
+
+        var path = Path.Combine(downaladDirectory, file.Name);
+        if (NeedDownload(file.Name))
+        {
+          RemoveFile(file.Name);
+          Model.Api.DownloadFile(path, ServerModel.MainRoomName, args.FileId);
+        }
       }
     }
 
