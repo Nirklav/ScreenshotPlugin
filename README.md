@@ -1,4 +1,4 @@
 ScreenshotPlugin
 ================
 
-Plugin for TCPChat
+Example of plugin for TCPChat
