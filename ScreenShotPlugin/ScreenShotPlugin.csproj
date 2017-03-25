@@ -33,6 +33,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BinSerializer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2e2d7f5115ca13f5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\BinSerializer.dll</HintPath>
+    </Reference>
     <Reference Include="Engine, Version=2.4.0.0, Culture=neutral, PublicKeyToken=3f21f064244e61af, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\Engine.dll</HintPath>

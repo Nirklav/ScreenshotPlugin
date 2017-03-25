@@ -1,5 +1,6 @@
-﻿using Engine.API;
-using Engine.Model.Server;
+﻿using Engine.Api;
+using Engine.Api.Client.Messages;
+using Engine.Model.Server.Entities;
 using Engine.Plugins.Client;
 
 namespace ScreenshotPlugin
@@ -18,10 +19,10 @@ namespace ScreenshotPlugin
       get { return CommandId; }
     }
 
-    protected override void OnRun(ClientCommandArgs args)
+    protected override void OnRun(CommandArgs args)
     {
-      var message = string.Format("Выполнен снимок у пользователя {0}.", args.PeerConnectionId);
-      ScreenClientPlugin.Model.Api.SendMessage(null, message, ServerModel.MainRoomName);
+      var message = string.Format("Выполнен снимок у пользователя {0}.", args.ConnectionId);
+      ScreenClientPlugin.Model.Api.Perform(new ClientSendMessageAction(ServerChat.MainRoomName, message));
     }
   }
 }

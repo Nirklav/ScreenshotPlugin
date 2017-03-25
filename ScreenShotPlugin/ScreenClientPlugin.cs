@@ -1,9 +1,8 @@
 ﻿using Engine;
-using Engine.Exceptions;
+using Engine.Api.Client.Files;
 using Engine.Model.Client;
 using Engine.Model.Common;
-using Engine.Model.Entities;
-using Engine.Model.Server;
+using Engine.Model.Server.Entities;
 using Engine.Plugins.Client;
 using System;
 using System.Collections.Generic;
@@ -15,15 +14,15 @@ namespace ScreenshotPlugin
   {
     private static List<string> downloadingFiles;
     private List<ClientPluginCommand> commands;
-    private IClientNotifierContext notifierContext;
+    private IClientEvents clientEvents;
 
     #region ClientPlugin
 
     protected override void Initialize()
     {
       downloadingFiles = new List<string>();
-      notifierContext = NotifierGenerator.MakeContext<IClientNotifierContext>();
-      notifierContext.ReceiveMessage += OnReceiveMessage;
+      clientEvents = NotifierGenerator.MakeEvents<IClientEvents>();
+      clientEvents.ReceiveMessage += OnReceiveMessage;
 
       commands = new List<ClientPluginCommand>
       {
@@ -53,9 +52,9 @@ namespace ScreenshotPlugin
       get { return commands; }
     }
 
-    public override object NotifierContext
+    public override object NotifierEvents
     {
-      get { return notifierContext; }
+      get { return clientEvents; }
     }
 
     #endregion
@@ -67,11 +66,9 @@ namespace ScreenshotPlugin
 
       using (var client = Model.Get())
       {
-        Room room;
-        if (!client.Rooms.TryGetValue(args.RoomName, out room))
-          throw new ModelException(ErrorCode.RoomNotFound);
+        var room = client.Chat.GetRoom(args.RoomName);
+        var file = room.TryGetFile(args.FileId);
 
-        var file = room.Files.Find(f => f.Id == args.FileId);
         var downaladDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "downloads");
         if (!Directory.Exists(downaladDirectory))
           Directory.CreateDirectory(downaladDirectory);
@@ -80,7 +77,7 @@ namespace ScreenshotPlugin
         if (NeedDownload(file.Name))
         {
           RemoveFile(file.Name);
-          Model.Api.DownloadFile(path, ServerModel.MainRoomName, args.FileId);
+          Model.Api.Perform(new ClientDownloadFileAction(ServerChat.MainRoomName, args.FileId, path));
         }
       }
     }

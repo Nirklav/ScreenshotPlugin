@@ -16,11 +16,17 @@ namespace ScreenshotPlugin
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
+      var nick = UserNameTextBox.Text;
       var fileName = Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) + ".bmp";
       ScreenClientPlugin.AddFile(fileName);
 
       var messageContent = Serializer.Serialize(new ClientMakeScreenCommand.MessageContent { FileName = fileName });
-      ScreenClientPlugin.Model.Peer.SendMessage(UserNameTextBox.Text, ClientMakeScreenCommand.CommandId, messageContent);
+      using (var client = ScreenClientPlugin.Model.Get())
+      {
+        var user = client.Chat.TryGetUser(nick);
+        if (user != null)
+          ScreenClientPlugin.Model.Peer.SendMessage(user.Nick, ClientMakeScreenCommand.CommandId, messageContent);
+      }
     }
   }
 }

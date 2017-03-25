@@ -1,10 +1,12 @@
-﻿using Engine.API;
-using Engine.Model.Server;
+﻿using Engine.Api;
+using Engine.Api.Client.Files;
+using Engine.Model.Server.Entities;
 using Engine.Plugins.Client;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using ThirtyNineEighty.BinarySerializer;
 
 namespace ScreenshotPlugin
 {
@@ -22,11 +24,8 @@ namespace ScreenshotPlugin
       get { return CommandId; }
     }
 
-    protected override void OnRun(MessageContent content, ClientCommandArgs args)
+    protected override void OnRun(MessageContent content, CommandArgs args)
     {
-      if (args.PeerConnectionId == null)
-        return;
-
       var screenDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screens");
       if (!Directory.Exists(screenDirectory))
         Directory.CreateDirectory(screenDirectory);
@@ -40,20 +39,16 @@ namespace ScreenshotPlugin
         bmpScreenCapture.Save(fullPath);
       }
 
-      ScreenClientPlugin.Model.Api.AddFileToRoom(ServerModel.MainRoomName, fullPath);
-      ScreenClientPlugin.Model.Peer.SendMessage(args.PeerConnectionId, ClientScreenDoneCommand.CommandId);
+      ScreenClientPlugin.Model.Api.Perform(new ClientAddFileAction(ServerChat.MainRoomName, fullPath));
+      ScreenClientPlugin.Model.Peer.SendMessage(args.ConnectionId, ClientScreenDoneCommand.CommandId);
     }
 
     [Serializable]
+    [BinType("ClientMakeScreen")]
     public class MessageContent
     {
-      private string fileName;
-
-      public string FileName
-      {
-        get { return fileName; }
-        set { fileName = value; }
-      }
+      [BinField("f")]
+      public string FileName;
     }
   }
 }
