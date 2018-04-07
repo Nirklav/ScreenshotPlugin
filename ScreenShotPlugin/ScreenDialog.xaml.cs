@@ -4,9 +4,6 @@ using System.Windows;
 
 namespace ScreenshotPlugin
 {
-  /// <summary>
-  /// Логика взаимодействия для PluginDialog.xaml
-  /// </summary>
   public partial class PluginDialog : Window
   {
     public PluginDialog()
@@ -23,9 +20,9 @@ namespace ScreenshotPlugin
       var messageContent = Serializer.Serialize(new ClientMakeScreenCommand.MessageContent { FileName = fileName });
       using (var client = ScreenClientPlugin.Model.Get())
       {
-        var user = client.Chat.TryGetUser(nick);
+        var user = client.Chat.FindUser(nick);
         if (user != null)
-          ScreenClientPlugin.Model.Peer.SendMessage(user.Nick, ClientMakeScreenCommand.CommandId, messageContent);
+          ScreenClientPlugin.Model.Peer.SendMessage(user.Id, ClientMakeScreenCommand.CommandId, messageContent);
       }
     }
   }
